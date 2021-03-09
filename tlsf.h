@@ -63,6 +63,7 @@ TLSF_API pool_t tlsf_get_pool(tlsf_t tlsf);
 
 /* Add/remove memory pools. */
 TLSF_API pool_t tlsf_add_pool(tlsf_t tlsf, void* mem, size_t bytes);
+TLSF_API pool_t tlsf_extend_pool(tlsf_t tlsf, void* mem, size_t bytes, size_t incr);
 TLSF_API void tlsf_remove_pool(tlsf_t tlsf, pool_t pool);
 
 /* malloc/memalign/realloc/free replacements. */
