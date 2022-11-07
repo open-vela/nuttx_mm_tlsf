@@ -339,7 +339,7 @@ typedef struct block_header_t
 ** - bit 0: whether block is busy or free
 ** - bit 1: whether previous block is busy or free
 */
-static const size_t block_header_free_bit = 1 << 0;
+static const size_t block_header_used_bit = 1 << 0;
 static const size_t block_header_prev_free_bit = 1 << 1;
 
 /*
@@ -385,13 +385,13 @@ typedef ptrdiff_t tlsfptr_t;
 
 static size_t block_size(const block_header_t* block)
 {
-	return block->size & ~(block_header_free_bit | block_header_prev_free_bit);
+	return block->size & ~(block_header_used_bit | block_header_prev_free_bit);
 }
 
 static void block_set_size(block_header_t* block, size_t size)
 {
 	const size_t oldsize = block->size;
-	block->size = size | (oldsize & (block_header_free_bit | block_header_prev_free_bit));
+	block->size = size | (oldsize & (block_header_used_bit | block_header_prev_free_bit));
 }
 
 static int block_is_last(const block_header_t* block)
@@ -401,17 +401,17 @@ static int block_is_last(const block_header_t* block)
 
 static int block_is_free(const block_header_t* block)
 {
-	return tlsf_cast(int, block->size & block_header_free_bit);
+	return tlsf_cast(int, !(block->size & block_header_used_bit));
 }
 
 static void block_set_free(block_header_t* block)
 {
-	block->size |= block_header_free_bit;
+	block->size &= ~block_header_used_bit;
 }
 
 static void block_set_used(block_header_t* block)
 {
-	block->size &= ~block_header_free_bit;
+	block->size |= block_header_used_bit;
 }
 
 static int block_is_prev_free(const block_header_t* block)
