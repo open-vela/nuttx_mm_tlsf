@@ -75,6 +75,9 @@ TLSF_API void tlsf_free(tlsf_t tlsf, void* ptr);
 /* Returns internal block size, not original request size */
 TLSF_API size_t tlsf_block_size(void* ptr);
 
+/* Returns the largest free block size */
+TLSF_API size_t tlsf_largest_free_block(tlsf_t tlsf);
+
 /* Overheads/limits of internal structures. */
 TLSF_API size_t tlsf_size(void);
 TLSF_API size_t tlsf_align_size(void);

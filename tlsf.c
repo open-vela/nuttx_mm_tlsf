@@ -950,6 +950,40 @@ TLSF_API size_t tlsf_block_size(void* ptr)
 	return size;
 }
 
+TLSF_API size_t tlsf_largest_free_block(tlsf_t tlsf)
+{
+	control_t* control = tlsf_cast(control_t*, tlsf);
+	unsigned int fl_map = control->fl_bitmap;
+	size_t max_block = 0;
+
+	if (fl_map)
+	{
+		int fl = tlsf_fls(fl_map);
+		unsigned int sl_map = control->sl_bitmap[fl];
+		if (sl_map)
+		{
+			int sl = tlsf_fls(sl_map);
+			block_header_t* block = control->blocks[fl][sl];
+			const size_t group_max = (size_t)1 << (fl + FL_INDEX_SHIFT + 1);
+			const size_t upper_bound = group_max > block_size_max ? block_size_max : group_max - 1;
+			while (block != &control->block_null)
+			{
+				size_t block_sz = block_size(block);
+				if (block_sz > max_block)
+				{
+					max_block = block_sz;
+					if (max_block >= upper_bound)
+					{
+						return max_block;
+					}
+				}
+				block = block->next_free;
+			}
+		}
+	}
+	return max_block;
+}
+
 TLSF_API int tlsf_check_pool(pool_t pool)
 {
 	/* Check that the blocks are physically correct. */
